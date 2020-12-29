@@ -37,4 +37,16 @@ data class ResidentDto(
 
 data class AddResidentDto(var fullName: String, var gender: String, var birthYear: Int, var phoneNumber: String, var districtId: Long)
 
-data class UpdateResidentDto(var fullName: String? = null, var gender: String? = null, var birthYear: Int? = null, var phoneNumber: String? = null)
+data class InfoDto(
+    var fullName: String,
+    var districtName: String,
+    var stateName: String,
+    var phoneNumber: String,
+    var birthYear: Int,
+    var gender: String,
+    var id: Long? = null
+){
+    companion object{
+        fun toDto(info: Info) = info.run { InfoDto(fullName, districtName, stateName, phoneNumber, birthYear, gender, id) }
+    }
+}

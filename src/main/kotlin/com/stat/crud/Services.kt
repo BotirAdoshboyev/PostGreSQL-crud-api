@@ -30,7 +30,7 @@ class StateServiceImp(
         stateRepository.findByStateNameAndDeletedFalse(stateName)?.let {
             return StateDto.toDto(State(stateName = it.stateName, id = it.id))
         }
-        throw NullPointerException("No State was found with name $stateName")
+        throw NullPointerException("No State's been found")
     }
 
     override fun update(id: Long, body: StateDto): StateDto {
@@ -39,7 +39,7 @@ class StateServiceImp(
             stateRepository.save(state)
             return StateDto.toDto(state)
         }
-        throw NullPointerException("No State was found with ID $id")
+        throw NullPointerException("No State's been found")
     }
 
     override fun delete(id: Long): String {
@@ -48,7 +48,7 @@ class StateServiceImp(
             stateRepository.save(state)
             return "State was successfully deleted."
         }
-        throw NullPointerException("No State was found with id $id.")
+        throw NullPointerException("No State's been found")
     }
 }
 
@@ -71,33 +71,33 @@ class DistrictServiceImp(
             val district = districtRepository.save(District(districtName = dto.districtName, state = state))
             return DistrictDto.toDto(district)
         }
-        throw NullPointerException("No State was found with ID ${dto.stateId}")
+        throw NullPointerException("No State's been found")
     }
 
-    override fun findAll() = districtRepository.findAllByDeletedFalse().map {
-            district -> DistrictDto.toDto(District(districtName = district.districtName, state = district.state, id = district.id)) }
+    override fun findAll() = districtRepository.findAllByDeletedFalse().map { district ->
+        DistrictDto.toDto(District(districtName = district.districtName, state = district.state, id = district.id)) }
 
     override fun findByIdAndDeletedFalse(id: Long): DistrictDto? {
         districtRepository.findByIdAndDeletedFalse(id)?.let {
             return DistrictDto.toDto(it)
         }
-        throw NullPointerException("No State was found with ID $id")
+        throw NullPointerException("No State's been found")
     }
 
     override fun findByDistrictNameAndDeletedFalse(districtName: String): DistrictDto? {
         districtRepository.findByDistrictNameAndDeletedFalse(districtName)?.let { return DistrictDto.toDto(it) }
-        throw NullPointerException("No district was found with name $districtName")
+        throw NullPointerException("No District's been found")
     }
 
     override fun update(id: Long, body: AddDistrictDto): DistrictDto {
-        val state = stateRepository.findByIdAndDeletedFalse(body.stateId)?:throw NullPointerException("No State was found with ID ${body.stateId}")
+        val state = stateRepository.findByIdAndDeletedFalse(body.stateId)?:throw NullPointerException("No State's been found")
         districtRepository.findByIdAndDeletedFalse(id)?.let { district->
             district.districtName = body.districtName
             district.state = state
             districtRepository.save(district)
             return DistrictDto.toDto(district)
         }
-        throw NullPointerException("No District was found with ID $id.")
+        throw NullPointerException("No District's been found")
     }
 
     override fun delete(id: Long): String {
@@ -106,7 +106,7 @@ class DistrictServiceImp(
             districtRepository.save(district)
             return "District was successfully deleted."
         }
-        throw NullPointerException("No District was found with ID $id")
+        throw NullPointerException("No District's been found")
     }
 }
 
@@ -126,7 +126,7 @@ class ResidentServiceImp(
     private val districtRepository: DistrictRepository
 ) : ResidentService {
     override fun add(dto: AddResidentDto): ResidentDto {
-        val district = districtRepository.findByIdAndDeletedFalse(dto.districtId)?:throw NullPointerException("No district was found to move to.")
+        val district = districtRepository.findByIdAndDeletedFalse(dto.districtId)?:throw NullPointerException("No District's been found")
         val resident = residentRepository.save(Resident(
             fullName = dto.fullName,
             gender = dto.gender,
@@ -141,19 +141,19 @@ class ResidentServiceImp(
 
     override fun findById(id: Long): ResidentDto {
         residentRepository.findByIdAndDeletedFalse(id)?.let { return ResidentDto.toDto(it) }
-        throw NullPointerException("No resident was found with ID $id.")
+        throw NullPointerException("No Resident's been found")
     }
 
     override fun findAllByFullName(fullName: String) = residentRepository.findAllByFullNameAndDeletedFalse(fullName).map { ResidentDto.toDto(it) }
 
     override fun moveTo(id: Long, districtId: Long): ResidentDto {
-        val district = districtRepository.findByIdAndDeletedFalse(districtId)?:throw NullPointerException("No District was found with ID $districtId")
+        val district = districtRepository.findByIdAndDeletedFalse(districtId)?:throw NullPointerException("No District's been found")
         residentRepository.findByIdAndDeletedFalse(id)?.let { resident ->
             resident.district = district
             residentRepository.save(resident)
             return ResidentDto.toDto(resident)
         }
-        throw NullPointerException("No Resident was found with ID $id.")
+        throw NullPointerException("No Resident's been found")
     }
 
     override fun update(id: Long, body: AddResidentDto): ResidentDto {
@@ -165,7 +165,7 @@ class ResidentServiceImp(
             residentRepository.save(resident)
             return ResidentDto.toDto(resident)
         }
-        throw NullPointerException("No Resident was found with ID $id.")
+        throw NullPointerException("No Resident's been found")
     }
 
     override fun delete(id: Long): String {
@@ -174,12 +174,12 @@ class ResidentServiceImp(
             residentRepository.save(it)
             return "Resident was successfully deleted."
         }
-        throw NullPointerException("No Resident was found with ID $id.")
+        throw NullPointerException("No Resident's been found")
     }
 }
 
 interface InfoService {
-    fun findFullInfo(): List<Info>
+    fun findFullInfo(): List<InfoDto>
     fun countAll() : Int
     fun countAllByDistrictId(districtId: Long) : Int
     fun countAllByStateId(stateId: Long) : Int
@@ -189,8 +189,7 @@ interface InfoService {
 class InfoServiceImpl(
     private val fullInfoRepository: FullInfoRepository
 ) : InfoService {
-    override fun findFullInfo() = fullInfoRepository.findForFullResidentInfo().map {
-        Info(it.fullName, it.districtName, it.stateName, it.phoneNumber, it.birthYear, it.gender, it.id) }
+    override fun findFullInfo() = fullInfoRepository.findForFullResidentInfo().map { InfoDto.toDto(it) }
 
     override fun countAll() = fullInfoRepository.countAll()
 
